@@ -1,0 +1,85 @@
+#Final Code by Maximilian Kasvin to count the amount of each MPAA rated movie from two given years
+
+import requests, math, time, pathlib, csv, json, pprint, itertools #imports all necessary libraries
+
+def compare_rating_numbers_for_two_years(year_requested_1,year_requested_2): #initializes the function
+    base_url = f"https://api.nytimes.com/svc/movies/v2/reviews/search.json?critics-pick=Y&opening-date={year_requested_1}-06-01%3A{year_requested_2}-06-01&order=by-opening-date&api-key=bGM1KBmCYOHeEqsMHGhQDzLYuHNtUQ5G"
+    #gets the url for the movie review endpoint of the Nytimes API while passing in the two requested dates as search parameters and the API Key
+    requestHeaders = { #getes the request header
+    "Accept": "application/json"
+  }
+    response= requests.get(base_url ,headers=requestHeaders)
+    movie_data = response.json() #sets the movie_data variable to a json of the search query for later use
+   
+    G_count = 0
+    PG_count = 0 #initialize all variables
+    PG_13_count = 0
+    R_count = 0
+    
+    for x in movie_data['results']: #runs through each result in the querey
+        rating = x['mpaa_rating'] #checks each result's MPAA rating
+        if rating == "G":
+            G_count+=1
+        elif rating == "PG":
+            PG_count += 1       #counts how many films there are for each MPAA rating
+        elif rating == "PG-13":
+            PG_13_count += 1
+        elif rating == "R":
+            R_count += 1
+        
+    print(f"The number of G rated movies from {year_requested_1} and {year_requested_2} is {G_count} ")
+    print(f"The number of PG rated movies from {year_requested_1} and {year_requested_2} is {PG_count} ")  #prints the totals for each rating for the two years
+    print(f"The number of PG-13 rated movies from {year_requested_1} and {year_requested_2} is {PG_13_count} ")
+    print(f"The number of R rated movies from {year_requested_1} and {year_requested_2} is {R_count} ")
+    
+    G_count_first_year = 0
+    PG_count_first_year = 0
+    PG_13_count_first_year = 0
+    R_count_first_year = 0           #sets variables to count for each year seperately
+    G_count_second_year = 0
+    PG_count_second_year = 0
+    PG_13_count_second_year = 0
+    R_count_second_year = 0
+    
+    for a in movie_data['results']:      #runs through each result in the query
+        date_opened_1 = a['opening_date'] #checks each results opening date
+        rating_1 = a['mpaa_rating'] #checks each result's MPAA rating
+        if rating_1 == "G" and str(year_requested_1) in date_opened_1: #if both the rating and the requested year from the query match then add to the count
+            G_count_first_year+=1
+        elif rating_1 == "PG" and  year_requested_1 in date_opened_1:
+            PG_count_first_year += 1
+        elif rating_1 == "PG-13" and year_requested_1 in date_opened_1:
+            PG_13_count_first_year += 1
+        elif rating_1 == "R" and str(year_requested_1) in date_opened_1:
+            R_count_first_year += 1
+    
+    for b in movie_data['results']:  #same logic as above but for the second year
+        date_opened_2 = b['opening_date']
+        rating_2 = b['mpaa_rating']
+        if rating_2 == "G" and str(year_requested_2) in date_opened_2:
+            G_count_second_year+=1
+        elif rating_2 == "PG" and str(year_requested_2) in date_opened_2:
+            PG_count_second_year += 1
+        elif rating_2 == "PG-13" and str(year_requested_2) in date_opened_2:
+            PG_13_count_second_year += 1
+        elif  rating_2 == "R" and str(year_requested_2) in date_opened_2:
+            R_count_second_year += 1
+        
+    print(f"The number of G rated movies in {year_requested_1} is {G_count_first_year} ")
+    print(f"The number of PG rated movies in {year_requested_1} is {PG_count_first_year} ")
+    print(f"The number of PG-13 rated movies in {year_requested_1} is {PG_13_count_first_year} ")
+    print(f"The number of R rated movies in {year_requested_1} is {R_count_first_year} ")   
+    #Displays the amount of each of the rated movies for both years seperately
+    print(f"The number of G rated movies in {year_requested_2} is {G_count_second_year} ")
+    print(f"The number of PG rated movies in {year_requested_2} is {PG_count_second_year} ")
+    print(f"The number of PG-13 rated movies in {year_requested_2} is {PG_13_count_second_year} ")
+    print(f"The number of R rated movies in {year_requested_2} is {R_count_second_year} ")
+    
+    
+        
+    
+
+year_requested_1 = input("Enter a movie release year to search with it's subsequent release year ") #requests the user for the first year
+year_requested_2 = int(year_requested_1) + 1 #sets the second year as one year after
+compare_rating_numbers_for_two_years(year_requested_1,year_requested_2) #sends both of these yearts two the function
+
